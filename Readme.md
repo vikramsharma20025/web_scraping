@@ -1,4 +1,4 @@
-This project uses django to create a website that can be used to crawl or scrape from provided links.
+This project uses Django to create a website that can be used to do a simple crawl to find all visitable links or scrape from provided links.
 
 To use, clone the project and create a virtual environment
 
