@@ -94,77 +94,77 @@ def crawler(request):
     return render(request, 'crawler.html')
 
 def output(request):
-    print("request started output")
-    global context
-    link = request.POST.get('linked','default')
-    if link=='' or link == 'default':
-        context = {
-            "message":"Please enter a link"
-        }
-        return render(request, 'scraper.html',context)
-    isembed = request.POST.get('output-type','default')
-    getselector = request.POST.get('selector','default')
-    isembed = "something"
-    print(getselector)
-    if (isembed=='html' ):
-        print("entered html")
-        response = requests.get(link)
-        print("got response")
-        soup = BeautifulSoup(response.content, "html.parser")
-        print("got soup")
-        child_soup = soup.find_all(getselector)
-        print(child_soup)
-        attris = request.POST.get('attribute','default')
-        all = []
-        for i in child_soup:
-            if(attris=='default'):
-                all.append(i.text)
-            else:
-                all.append(i.get(attris))
+    if request.method == 'POST':
+        print("request started output")
+        # global context
+        link = request.POST.get('linked','default')
+        if link=='' or link == 'default':
+            context = {
+                "message":"Please enter a link"
+            }
+            return render(request, 'scraper.html',context)
+        isembed = request.POST.get('output-type','default')
+        getselector = request.POST.get('selector','default')
+        print(getselector)
+        if (isembed=='html' ):
+            print("entered html")
+            response = requests.get(link)
+            print("got response")
+            soup = BeautifulSoup(response.content, "html.parser")
+            print("got soup")
+            child_soup = soup.find_all(getselector)
+            print(child_soup)
+            attris = request.POST.get('attribute','default')
+            all = []
+            for i in child_soup:
+                if(attris=='default'):
+                    all.append(i.text)
+                else:
+                    all.append(i.get(attris))
 
-        # remove empty elements or none elements
-        all = [i for i in all if i]
-        # if element in all is a half link complete it with the link
-        for i in range(len(all)):
-            if (all[i][0] == '/'):
-                all[i] = link + all[i]
-        context = {
-            'url': link,
-            'selector': getselector,
-            'attribute': attris,
-            'all': all,
-        }
-        for i in child_soup:
-            print(i.text)
-        # print(context['htmlcontent'][0].text)
-        return render(request, 'htmlform.html',context)
-    elif (isembed == 'css'):
-        response = requests.get(link)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        css = soup.find_all('link', rel='stylesheet')
-        csslinks = []
-        for i in css:
-            csslinks.append(i.get('href'))
-        for i in range(len(csslinks)):
-            if (csslinks[i][0] == '/'):
-                csslinks[i] = link + csslinks[i]
-        context = {
-            'csslinks':csslinks
-        }
-        return render(request, 'cssform.html',context)
-    elif (isembed == 'js'):
-        response = requests.get(link)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        js = soup.find_all('script')
-        jslinks = []
-        for i in js:
-            if(i.get('src')!=None):
-                jslinks.append(i.get('src'))
-        for i in range(len(jslinks)):
-            if (jslinks[i][0] == '/'):
-                jslinks[i] = link + jslinks[i]
-        context = {
-            'csslinks':jslinks
-        }
-        return render(request, 'cssform.html',context)
+            # remove empty elements or none elements
+            all = [i for i in all if i]
+            # if element in all is a half link complete it with the link
+            for i in range(len(all)):
+                if (all[i][0] == '/'):
+                    all[i] = link + all[i]
+            context = {
+                'url': link,
+                'selector': getselector,
+                'attribute': attris,
+                'all': all,
+            }
+            for i in child_soup:
+                print(i.text)
+            # print(context['htmlcontent'][0].text)
+            return render(request, 'htmlform.html',context)
+        elif (isembed == 'css'):
+            response = requests.get(link)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            css = soup.find_all('link', rel='stylesheet')
+            csslinks = []
+            for i in css:
+                csslinks.append(i.get('href'))
+            for i in range(len(csslinks)):
+                if (csslinks[i][0] == '/'):
+                    csslinks[i] = link + csslinks[i]
+            context = {
+                'csslinks':csslinks
+            }
+            return render(request, 'cssform.html',context)
+        elif (isembed == 'js'):
+            response = requests.get(link)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            js = soup.find_all('script')
+            jslinks = []
+            for i in js:
+                if(i.get('src')!=None):
+                    jslinks.append(i.get('src'))
+            for i in range(len(jslinks)):
+                if (jslinks[i][0] == '/'):
+                    jslinks[i] = link + jslinks[i]
+            context = {
+                'csslinks':jslinks
+            }
+            return render(request, 'cssform.html',context)
     return render(request, 'error.html')
